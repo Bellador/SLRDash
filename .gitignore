@@ -1,0 +1,4 @@
+.idea
+database.txt
+__pycache__/
+SLRtool/__pycache__/

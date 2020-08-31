@@ -1,0 +1,23 @@
+.content {
+    -webkit-border-radius: 5px 5px 5px 5px;
+    border-radius: 5px 5px 5px 5px;
+    -webkit-box-shadow: 2px 2px 2px 2px rgba(0,0,0,0.5);
+    box-shadow: 2px 2px 2px 2px rgba(0,0,0,0.5);
+}
+
+.fa {
+    font-size: 7vw;
+}
+
+.btn-decision {
+    height: 7vw;
+    width: 15vw;
+}
+
+a {
+    text-decoration:none;
+}
+
+a:hover {
+    text-decoration:none;
+}

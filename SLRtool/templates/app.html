@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>SLR Dashboard</title>
+
+    <!-- Bootstrap Core CSS -->
+    <!-- <link href="/static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet"> -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+
+  
+    <!-- Charts Core CSS -->
+    <link rel="stylesheet" href="/static/ext/c3.min.css" />
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style.css" />
+    <!-- LOAD JS -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
+    <script src="/static/js/core.js"></script>
+    <script>
+        var loadedData;
+        var currentReviewer;
+        console.log("here")
+        window.onload = function() {
+             // show modal
+            $('#reviewerNameModal').modal('show');
+            start()
+        }
+    </script> 
+</head>
+
+<body id="page-top">
+    <!-- Reviewer Name Input Modal -->
+    <!-- Modal -->
+    <div class="modal fade hidden" id="reviewerNameModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                   <h5 class="modal-title" id="exampleModalLongTitle">Who is reviewing?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="input-group mb-3">
+                        <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">Name</span>
+                        </div>
+                        <input id="reviewerUserInput" type="text" class="form-control" placeholder="reviewerName" aria-describedby="basic-addon1">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="setReviewerName()">Submit</button>
+                </div>
+            </div>
+        </div>
+  </div>
+    <div id="main-bin" class="container-fluid">
+        <div class="row">
+            <div id="left-box" class="col-1">
+                <div class="row" style="margin-top: 30vh"> </div>
+                <div class="d-flex justify-content-center"> 
+                    <a href="#" onclick="getArticle('/previous')">
+                        <i class="fa fa-arrow-circle-left"></i>
+                        <div>previous</div>
+                    </a>
+                </div>
+                
+            </div>
+
+            <div id="middle-box" class="col-8">
+                <div class="row m-3 p-1">
+                    <div class="col"><h3><a id="articleURL" href="">Article</a></h3></div>
+                    <div class="col"><h3>Status:  <span id="articleStatusDisplay"></span></h3></div>
+                    <div class="col"><h3>Reviewer:  <span id="reviewer"></span></h3></div>
+                </div>
+
+                <div class="row mt-1 mx-1 p-1"><b>Title</b></div>
+                <div class="row content m-1 p-1">
+                    <div id="title"></div>
+                </div>
+    
+                <div class="row mt-1 mx-1 p-1"><b>Abstract</b></div>
+                <div class="row content m-1 p-1">
+                    <div id="abstract"></div>               
+                </div>
+                
+                <div class="row mt-1 mx-1 p-1"><b>Keywords</b></div>
+                <div class="row content m-1 p-1">
+                    <div id="keywords"></div>
+                </div>
+    
+                <div class="row m-3 p-1">
+                    <div id="btn-reject" class="col-4">
+                        <button type="button" class="btn btn-danger btn-decision" onclick="decision('-1')">Exclude</button>
+                    </div>
+                    <div id="btn-unsure" class="col-4">
+                        <button type="button" class="btn btn-warning btn-decision" onclick="decision('0')">Unsure</button>
+                    </div>
+                    <div id="btn-accept" class="col-4">
+                        <button type="button" class="btn btn-success btn-decision" onclick="decision('1')">Include</button>
+                    </div>
+                </div>
+            </div>
+            <!-- List processed papers in a list fasion -->
+            <div id="right-box" class="col-3 mt-3">
+                <div class="row"><h3>History</h3></div>
+                <div class="row">
+                    <table class="table">
+                        <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">article</th>
+                        </tr>
+                        </thead>
+                        <tbody id="table-body">
+                        <!-- 
+                        <tr>
+                            <th scope="row">1</th>
+                            <td>article title</td>
+                        </tr> -->
+                        </table>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // Create CSRF Token
+        var csrf_token = "{{ csrf_token() }}";
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", csrf_token);
+                }
+            }
+        });
+    </script>
+</body>
+
+
