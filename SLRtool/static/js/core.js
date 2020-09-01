@@ -32,6 +32,7 @@ function getArticle(endpoint, eid=null) {
                 type: "GET",
                 url: endpoint,
                 success: function(data){
+                    // set global loadedData
                     loadedData = data;
                     loadArticle(data)},
                 failure: function(errMsg) {
@@ -50,8 +51,23 @@ function loadArticle(data){
     // check if the article was already accessed (e.g. because back previous article button was triggered)
     // and change background color accordingly to indicate existing accessment to user
     //console.log(typeof  data.decision)
-    console.log("data decision:" + data.decision);
-    switch (data.decision) {
+
+    // check the previous decision on the paper given the current reviewer
+    let decision;
+    console.log("reviewer:" + currentReviewer);
+    switch (currentReviewer) {
+        case '1':
+            decision = data.decision_r_1
+            break;
+        case '2':
+            decision = data.decision_r_2
+            break;
+        case '3':
+            decision = data.decision_r_3
+            break;
+    }
+    console.log("data decision:" + decision);
+    switch (decision) {
         case '1':
             console.log('the decision is already set to 1')
             $("div.content").css("background-color", "#00cc44");
@@ -71,7 +87,7 @@ function loadArticle(data){
             $("#articleStatusDisplay").text("excluded")
             break;
 
-        case null:
+        case 'not reviewed':
             $("div.content").css("background-color", "white");
             //also display current status
             $("#articleStatusDisplay").text("not yet rated")
@@ -121,9 +137,10 @@ function decision(decision) {
 }
 
 function setSettings() {
-    currentReviewer = $("#reviewerUserInput").val();
+    currentReviewer = $("#selectReviewer").val();
     // set text in html visible to user
     $("#reviewer").text(currentReviewer);
+    console.log("Current reviewer " + currentReviewer)
     // get article filter settings for session
     let articleFilterList = [];
     $(".custom-control-input").each(function() {

@@ -51,11 +51,13 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <div class="input-group mb-3">
-                        <div class="input-group-prepend">
-                        <span class="input-group-text" id="basic-addon1">Reviewer name</span>
-                        </div>
-                        <input id="reviewerUserInput" type="text" class="form-control" aria-describedby="basic-addon1">
+                    <div class="form-group">
+                        <label for="selectReviewer">Reviewer</label>
+                        <select class="form-control" id="selectReviewer">
+                          <option>1</option>
+                          <option>2</option>
+                          <option>3</option>
+                        </select>
                     </div>
                     <!-- Search filter checkboxes -->
                     <div class="container-fluid mx-3 p-1">
@@ -110,7 +112,7 @@
             <div id="middle-box" class="col-8">
                 <div class="row m-3 p-1">
                     <div class="col"><h3><a id="articleURL" href="">Article</a></h3></div>
-                    <div class="col"><h3>Status:  <span id="articleStatusDisplay"></span></h3></div>
+                    <div class="col"><h3>Status:  <span id="articleStatusDisplay">not reviewed</span></h3></div>
                     <div class="col"><h3>Reviewer:  <span id="reviewer"></span></h3></div>
                 </div>
 
@@ -157,7 +159,7 @@
                             </div>
                             <div class="modal-body">
                                 <div class="input-group">
-                                    <textarea class="form-control" aria-label="Criteria" placeholder="Insert your own inclusion & exclusion criteria here as reference"></textarea>
+                                    <textarea class="form-control" aria-label="Criteria" placeholder="Insert your own inclusion & exclusion criteria as reference"></textarea>
                                 </div>    
                             </div>
                             <div class="modal-footer">

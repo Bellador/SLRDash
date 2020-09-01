@@ -22,10 +22,11 @@ class ScopusEntry(db.Model):
     searchfield = db.Column(db.String)
     query = db.Column(db.String)
     sdg = db.Column(db.String)
-    decision = db.Column(db.String, default='not reviewed')
-    reviewer = db.Column(db.String, default=None)
+    decision_r_1 = db.Column(db.String, default='not reviewed')
+    decision_r_2 = db.Column(db.String, default='not reviewed')
+    decision_r_3 = db.Column(db.String, default='not reviewed')
 
-    def __init__(self, eid, doi, title, subtype, date, author, openaccess, publicationname, paperurl, abstracturl, request, source, searchfield, query, sdg, decision, abstract=None, keywords=None, reviewer=None):
+    def __init__(self, eid, doi, title, subtype, date, author, openaccess, publicationname, paperurl, abstracturl, request, source, searchfield, query, sdg, decision_r_1, decision_r_2, decision_r_3, abstract=None, keywords=None):
         self.eid = eid
         self.doi = doi
         self.title = title
@@ -43,5 +44,6 @@ class ScopusEntry(db.Model):
         self.searchfield = searchfield
         self.query = query
         self.sdg = sdg
-        self.decision = decision
-        self.reviewer = reviewer
+        self.decision_r_1 = decision_r_1
+        self.decision_r_2 = decision_r_2
+        self.decision_r_3 = decision_r_3

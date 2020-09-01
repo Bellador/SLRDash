@@ -18,25 +18,49 @@ def get_article(eid=False):
             previous_eids = tuple(previous_eids)
         # get article filter settings from session token that were passed by the user at application start
         filters = tuple(session['filters'])
-        article = db.session.query(ScopusEntry). \
-            filter(ScopusEntry.subtype == 'Article'). \
-            filter(~ScopusEntry.eid.in_(previous_eids)). \
-            filter(ScopusEntry.eid != session.get('current_eid')). \
-            filter(ScopusEntry.decision.in_(filters)). \
-            order_by(ScopusEntry.eid.desc()). \
-            limit(1). \
-            all() # same as list(query)/list(article)
+        reviewer = int(session['reviewer'])
+        if reviewer == 1:
+            article = db.session.query(ScopusEntry). \
+                filter(ScopusEntry.subtype == 'Article'). \
+                filter(~ScopusEntry.eid.in_(previous_eids)). \
+                filter(ScopusEntry.eid != session.get('current_eid')). \
+                filter(ScopusEntry.decision_r_1.in_(filters)). \
+                order_by(ScopusEntry.eid.desc()). \
+                limit(1). \
+                all() # same as list(query)/list(article)
+        elif reviewer == 2:
+            article = db.session.query(ScopusEntry). \
+                filter(ScopusEntry.subtype == 'Article'). \
+                filter(~ScopusEntry.eid.in_(previous_eids)). \
+                filter(ScopusEntry.eid != session.get('current_eid')). \
+                filter(ScopusEntry.decision_r_2.in_(filters)). \
+                order_by(ScopusEntry.eid.desc()). \
+                limit(1). \
+                all() # same as list(query)/list(article)
+        elif reviewer == 3:
+            article = db.session.query(ScopusEntry). \
+                filter(ScopusEntry.subtype == 'Article'). \
+                filter(~ScopusEntry.eid.in_(previous_eids)). \
+                filter(ScopusEntry.eid != session.get('current_eid')). \
+                filter(ScopusEntry.decision_r_3.in_(filters)). \
+                order_by(ScopusEntry.eid.desc()). \
+                limit(1). \
+                all() # same as list(query)/list(article)
 
-        article = article[0]
+
     else:
         article = db.session.query(ScopusEntry). \
             filter(ScopusEntry.eid == eid). \
             all()  # same as list(query)/list(article)
+    # check if empty return
+    try:
         article = article[0]
+        data = article.__dict__
+        # remove the InstanceState key from the dict that hinders json serialisation
+        del data['_sa_instance_state']
+    except:
+        data = None
 
-    data = article.__dict__
-    # remove the InstanceState key from the dict that hinders json serialisation
-    del data['_sa_instance_state']
     return data
 
 @app.route('/')
@@ -72,27 +96,30 @@ def old_article():
 @app.route('/next', methods=['GET'])
 def next_article():
     data = get_article()
-    session_items = session.items()
-    # set old current_eid to previous_eid if present with session variable
-    # if its not present, then next has been called the first time; on window load
-    if 'current_eid' not in session.keys():
-        session['current_eid'] = data['eid']
-        session['previous_eids'] = []
-    # next endpoint was called min. once
-    else:
-        # set current eid to previous eid and assing newly fetched eid
-        OLD_current_eid = session['current_eid']
-        # check if already exsits (e.g. when going back and forth between articles)
-        if OLD_current_eid not in session['previous_eids']:
-            session['previous_eids'].append(OLD_current_eid)
-        session['current_eid'] = data['eid']
+    if data is not None:
+        session_items = session.items()
+        # set old current_eid to previous_eid if present with session variable
+        # if its not present, then next has been called the first time; on window load
+        if 'current_eid' not in session.keys():
+            session['current_eid'] = data['eid']
+            session['previous_eids'] = []
+        # next endpoint was called min. once
+        else:
+            # set current eid to previous eid and assing newly fetched eid
+            OLD_current_eid = session['current_eid']
+            # check if already exsits (e.g. when going back and forth between articles)
+            if OLD_current_eid not in session['previous_eids']:
+                session['previous_eids'].append(OLD_current_eid)
+            session['current_eid'] = data['eid']
 
-    # add previous eids
-    data['previous_eids'] = session['previous_eids']
-    json = jsonify(data)
-    # store eid as previous_eid (for 'previous' button)
-    resp = make_response(json)
-    return resp
+        # add previous eids
+        data['previous_eids'] = session['previous_eids']
+        json = jsonify(data)
+        # store eid as previous_eid (for 'previous' button)
+        resp = make_response(json)
+        return resp
+    else:
+        return ('no data', 204)
 
 @app.route('/previous', methods=['GET'])
 def previous_article():
@@ -131,10 +158,19 @@ def decision_made():
     '''
     json = request.json
     decision = json['decision']
-    reviewer = session['reviewer']
-    db.session.query(ScopusEntry).\
-        filter(ScopusEntry.eid == session['current_eid']).\
-        update({'decision': decision, 'reviewer': reviewer})
+    reviewer = int(session['reviewer'])
+    if reviewer == 1:
+        db.session.query(ScopusEntry).\
+            filter(ScopusEntry.eid == session['current_eid']).\
+            update({'decision_r_1': decision})
+    elif reviewer == 2:
+        db.session.query(ScopusEntry).\
+            filter(ScopusEntry.eid == session['current_eid']).\
+            update({'decision_r_2': decision})
+    elif reviewer == 3:
+        db.session.query(ScopusEntry).\
+            filter(ScopusEntry.eid == session['current_eid']).\
+            update({'decision_r_3': decision})
 
     db.session.commit()
     return ('', 204)
@@ -143,6 +179,8 @@ def decision_made():
 def set_settings():
     settings = request.json
     session['reviewer'] = settings['reviewer']
+    # create new decision column for this reviewer if not existant
+
     filters = settings['article_filter_list']
     try:
         filters[filters.index('notreviewed_checkbox')] = 'not reviewed'
