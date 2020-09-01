@@ -7,10 +7,10 @@
 
 ## Features:
 - Easily review papers based on title, abstract and keywords
-- Simple overview of the review history
-- Filter for papers with specific reviews 
-- Stores who performed the review on a given paper
-- Pop-up text field that keeps the personalised inclusion & exclusion criteria for the given SLR in the reviwers eyesight
+- Supports the recommended three independant reviewers
+- Shows review history
+- Allows paper filter according to received review 
+- Pop-up text field that keeps the personalised inclusion & exclusion criteria in the reviwers eyesight
 
 ### Setup:
 1. Initialise all required python packages by using the requirements.txt file to create an identical, compatible anaconda environemnt with the following command: `conda create --name myenv --file requirements.txt` (potentially additional packages according to your target db have to be also installed.)
