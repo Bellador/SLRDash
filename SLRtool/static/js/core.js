@@ -120,17 +120,29 @@ function decision(decision) {
     });
 }
 
-function setReviewerName() {
+function setSettings() {
     currentReviewer = $("#reviewerUserInput").val();
-    console.log("Reviewer: " + currentReviewer)
+    // set text in html visible to user
     $("#reviewer").text(currentReviewer);
+    // get article filter settings for session
+    let articleFilterList = [];
+    $(".custom-control-input").each(function() {
+        // check not to be id all_shops
+        let articleFilter = $(this).attr('id')
+        // chech if checkbox is checked lol
+        if($(this).prop('checked')){
+            articleFilterList.push(articleFilter);
+        }
+    });
+    var payload = {"reviewer": currentReviewer,
+                    "article_filter_list": articleFilterList}
     $.ajax({
         type: "POST",
-        url: "/reviewer",
-        data: JSON.stringify(currentReviewer),
+        url: "/settings",
+        data: JSON.stringify(payload),
         contentType: "application/json; charset=utf-8",
         dataType: "json",
-        success: function(data){},
+        success: function(data){start()},
         failure: function(errMsg) {
             console.log("get error")
         }

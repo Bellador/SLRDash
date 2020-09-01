@@ -34,7 +34,6 @@
         window.onload = function() {
              // show modal
             $('#reviewerNameModal').modal('show');
-            start()
         }
     </script> 
 </head>
@@ -46,7 +45,7 @@
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                   <h5 class="modal-title" id="exampleModalLongTitle">Who is reviewing?</h5>
+                   <h5 class="modal-title" id="exampleModalLongTitle">Session settings</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -54,13 +53,43 @@
                 <div class="modal-body">
                     <div class="input-group mb-3">
                         <div class="input-group-prepend">
-                        <span class="input-group-text" id="basic-addon1">Name</span>
+                        <span class="input-group-text" id="basic-addon1">Reviewer name</span>
                         </div>
-                        <input id="reviewerUserInput" type="text" class="form-control" placeholder="reviewerName" aria-describedby="basic-addon1">
+                        <input id="reviewerUserInput" type="text" class="form-control" aria-describedby="basic-addon1">
+                    </div>
+                    <!-- Search filter checkboxes -->
+                    <div class="container-fluid mx-3 p-1">
+                        <div class="row">
+                            <p>Which articles shall be reviewed?</p>
+                        </div>
+                        <div class="row">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="notreviewed_checkbox" checked>
+                                <label class="custom-control-label" for="notreviewed_checkbox">Not yet reviewed</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="unsure_checkbox">
+                                <label class="custom-control-label" for="unsure_checkbox">Unsure</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="included_checkbox">
+                                <label class="custom-control-label" for="included_checkbox">Included</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="custom-control custom-checkbox">
+                                <input type="checkbox" class="custom-control-input" id="excluded_checkbox">
+                                <label class="custom-control-label" for="excluded_checkbox">Excluded</label>
+                            </div>
+                        </div> 
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="setReviewerName()">Submit</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="setSettings()">Submit</button>
                 </div>
             </div>
         </div>
@@ -68,14 +97,14 @@
     <div id="main-bin" class="container-fluid">
         <div class="row">
             <div id="left-box" class="col-1">
-                <div class="row" style="margin-top: 30vh"> </div>
-                <div class="d-flex justify-content-center"> 
+                <div class="row" style="margin-top: 30vh"></div>
+                <!-- <div class="row" style="margin-top: 3vh"></div> -->
+                <div class="row d-flex justify-content-center">
                     <a href="#" onclick="getArticle('/previous')">
                         <i class="fa fa-arrow-circle-left"></i>
-                        <div>previous</div>
+                        <div class="text-center">previous</div>
                     </a>
                 </div>
-                
             </div>
 
             <div id="middle-box" class="col-8">
@@ -99,16 +128,43 @@
                 <div class="row content m-1 p-1">
                     <div id="keywords"></div>
                 </div>
-    
-                <div class="row m-3 p-1">
-                    <div id="btn-reject" class="col-4">
+                <div class="row" style="margin-top: 3vh"></div>
+                <div class="row my-3">
+                    <div id="btn-reject" class="col-4 d-flex justify-content-center">
                         <button type="button" class="btn btn-danger btn-decision" onclick="decision('-1')">Exclude</button>
                     </div>
-                    <div id="btn-unsure" class="col-4">
+                    <div id="btn-unsure" class="col-4 d-flex justify-content-center">
                         <button type="button" class="btn btn-warning btn-decision" onclick="decision('0')">Unsure</button>
                     </div>
-                    <div id="btn-accept" class="col-4">
+                    <div id="btn-accept" class="col-4 d-flex justify-content-center">
                         <button type="button" class="btn btn-success btn-decision" onclick="decision('1')">Include</button>
+                    </div>
+                </div>
+                <div class="row my-2 d-flex justify-content-center">
+                    <!-- Button trigger modal -->
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#criteriaModal">
+                        Show criteria
+                    </button>
+                    <!-- Modal -->
+                    <div class="modal fade" id="criteriaModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLongTitle">Review criteria</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="input-group">
+                                    <textarea class="form-control" aria-label="Criteria" placeholder="Insert your own inclusion & exclusion criteria here as reference"></textarea>
+                                </div>    
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                        </div>
                     </div>
                 </div>
             </div>

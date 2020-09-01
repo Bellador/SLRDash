@@ -22,7 +22,7 @@ class ScopusEntry(db.Model):
     searchfield = db.Column(db.String)
     query = db.Column(db.String)
     sdg = db.Column(db.String)
-    decision = db.Column(db.String, default=None)
+    decision = db.Column(db.String, default='not reviewed')
     reviewer = db.Column(db.String, default=None)
 
     def __init__(self, eid, doi, title, subtype, date, author, openaccess, publicationname, paperurl, abstracturl, request, source, searchfield, query, sdg, decision, abstract=None, keywords=None, reviewer=None):

@@ -1,26 +1,33 @@
+import simplejson as json
 from . import app, db
-from flask import g
-from sqlalchemy import text
 from .models import ScopusEntry
-from sqlalchemy.orm import sessionmaker
 from flask import render_template, request, jsonify, make_response, url_for, redirect, session
 
 def get_article(eid=False):
-    data = {}
     '''
     inital db request to get paper pool based on:
     - subtype: peer reviewed articles
     - not yet reviewed (decision is Null, decision true = included, decision false = excluded)
     '''
+    session_items = session.items()
     if not eid:
+        previous_eids = session.get('previous_eids')
+        if previous_eids is None:
+            previous_eids = ()
+        else:
+            previous_eids = tuple(previous_eids)
+        # get article filter settings from session token that were passed by the user at application start
+        filters = tuple(session['filters'])
         article = db.session.query(ScopusEntry). \
             filter(ScopusEntry.subtype == 'Article'). \
-            filter(ScopusEntry.decision.is_(None)). \
+            filter(~ScopusEntry.eid.in_(previous_eids)). \
+            filter(ScopusEntry.eid != session.get('current_eid')). \
+            filter(ScopusEntry.decision.in_(filters)). \
             order_by(ScopusEntry.eid.desc()). \
             limit(1). \
             all() # same as list(query)/list(article)
+
         article = article[0]
-    #eid can be supplied to access e.g. previous post. The eid then comes from the cookie value 'previous_eid'
     else:
         article = db.session.query(ScopusEntry). \
             filter(ScopusEntry.eid == eid). \
@@ -28,14 +35,8 @@ def get_article(eid=False):
         article = article[0]
 
     data = article.__dict__
-
     # remove the InstanceState key from the dict that hinders json serialisation
     del data['_sa_instance_state']
-    # data['eid'] = article.eid
-    # data['title'] = article.title
-    # data['abstract'] = article.abstract
-    # data['url'] = article.paperurl
-    # data['keywords'] = article.keywords
     return data
 
 @app.route('/')
@@ -45,12 +46,16 @@ def home():
 @app.route('/start', methods=['GET'])
 def start():
     # clear all relevant session cookies
-    try:
-        del session['current_eid']
-        del session['previous_eids']
-        del session['reviewer']
-    except Exception as e:
-        print(f'Some session keys were not present: {e}')
+    session_items = session.items()
+    keys = session.keys()
+    to_del = []
+    not_to_del = ['csrf_token', 'filters', 'reviewer']
+    for key in keys:
+        if key not in not_to_del:
+            to_del.append(key)
+    # actual delete
+    for key in to_del:
+        del session[key]
     return ('', 204)
 
 @app.route('/history', methods=['POST'])
@@ -134,8 +139,27 @@ def decision_made():
     db.session.commit()
     return ('', 204)
 
-@app.route('/reviewer', methods=["POST"])
-def set_reviewer():
-    reviewer = request.json
-    session['reviewer'] = reviewer
+@app.route('/settings', methods=["POST"])
+def set_settings():
+    settings = request.json
+    session['reviewer'] = settings['reviewer']
+    filters = settings['article_filter_list']
+    try:
+        filters[filters.index('notreviewed_checkbox')] = 'not reviewed'
+    except:
+        pass
+    try:
+        filters[filters.index('unsure_checkbox')] = '0'
+    except:
+        pass
+    try:
+        filters[filters.index('included_checkbox')] = '1'
+    except:
+        pass
+    try:
+        filters[filters.index('excluded_checkbox')] = '-1'
+    except:
+        pass
+
+    session['filters'] = filters
     return ('', 204)
