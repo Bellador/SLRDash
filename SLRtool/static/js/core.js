@@ -151,7 +151,6 @@ function setSettings() {
     // get article filter settings for session
     let articleFilterList = [];
     $(".custom-control-input").each(function() {
-        // check not to be id all_shops
         let articleFilter = $(this).attr('id')
         // chech if checkbox is checked lol
         if($(this).prop('checked')){
