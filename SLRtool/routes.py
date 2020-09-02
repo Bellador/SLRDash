@@ -158,19 +158,23 @@ def decision_made():
     '''
     json = request.json
     decision = json['decision']
+    remark = json['remark']
     reviewer = int(session['reviewer'])
     if reviewer == 1:
         db.session.query(ScopusEntry).\
             filter(ScopusEntry.eid == session['current_eid']).\
-            update({'decision_r_1': decision})
+            update({'decision_r_1': decision,
+                    'remark_r_1': remark})
     elif reviewer == 2:
         db.session.query(ScopusEntry).\
             filter(ScopusEntry.eid == session['current_eid']).\
-            update({'decision_r_2': decision})
+            update({'decision_r_2': decision,
+                    'remark_r_2': remark})
     elif reviewer == 3:
         db.session.query(ScopusEntry).\
             filter(ScopusEntry.eid == session['current_eid']).\
-            update({'decision_r_3': decision})
+            update({'decision_r_3': decision,
+                    'remark_r_3': remark})
 
     db.session.commit()
     return ('', 204)

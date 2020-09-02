@@ -6,10 +6,11 @@
 ![Demo2](/SLRDash_demo2.png)
 
 ## Features:
-- Easily review papers based on title, abstract and keywords
-- Supports the recommended three independant reviewers
+- Easily review articles based on title, abstract and keywords
+- Accomodates three independant reviewers
 - Shows review history
-- Allows paper filter according to received review 
+- Allows reviewers to leave remarks/notes linked to reviews
+- Allows to filter articles according to received review 
 - Pop-up text field that keeps the personalised inclusion & exclusion criteria in the reviwers eyesight
 
 ### Setup:

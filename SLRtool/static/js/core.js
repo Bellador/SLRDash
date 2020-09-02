@@ -10,7 +10,6 @@ function start() {
     });  
 }
 
-
 function getArticle(endpoint, eid=null) {
         if(endpoint=="/history") {
             console.log("endpoint" + endpoint)
@@ -50,23 +49,25 @@ function loadArticle(data){
 
     // check if the article was already accessed (e.g. because back previous article button was triggered)
     // and change background color accordingly to indicate existing accessment to user
-    //console.log(typeof  data.decision)
 
     // check the previous decision on the paper given the current reviewer
     let decision;
-    console.log("reviewer:" + currentReviewer);
+    //console.log("reviewer:" + currentReviewer);
     switch (currentReviewer) {
         case '1':
             decision = data.decision_r_1
+            $("#reviewerRemark").val(data.remark_r_1);
             break;
         case '2':
             decision = data.decision_r_2
+            $("#reviewerRemark").val(data.remark_r_2);
             break;
         case '3':
             decision = data.decision_r_3
+            $("#reviewerRemark").val(data.remark_r_3);
             break;
     }
-    console.log("data decision:" + decision);
+    //console.log("data decision:" + decision);
     switch (decision) {
         case '1':
             console.log('the decision is already set to 1')
@@ -96,11 +97,17 @@ function loadArticle(data){
 }
 
 function decision(decision) {
+    let remark = $("#reviewerRemark").val();
+    // clear remark text field for next article
+    $("#reviewerRemark").val("");
     $.ajax({
         type: "POST",
         url: "/decision",
         // the key needs to match your method's input parameter (case-sensitive).
-        data: JSON.stringify({'decision': decision}),
+        data: JSON.stringify({
+                    "decision": decision,
+                    "remark": remark    
+                }),
         contentType: "application/json; charset=utf-8",
         dataType: "json",
         success: function(){
@@ -140,7 +147,7 @@ function setSettings() {
     currentReviewer = $("#selectReviewer").val();
     // set text in html visible to user
     $("#reviewer").text(currentReviewer);
-    console.log("Current reviewer " + currentReviewer)
+    //console.log("Current reviewer " + currentReviewer)
     // get article filter settings for session
     let articleFilterList = [];
     $(".custom-control-input").each(function() {
@@ -164,8 +171,6 @@ function setSettings() {
             console.log("get error")
         }
     });  
-
-
 }
 
 
