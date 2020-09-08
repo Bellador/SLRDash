@@ -1,4 +1,5 @@
 .idea
 database.txt
+database_remote.py
 __pycache__/
 SLRtool/__pycache__/

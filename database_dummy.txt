@@ -1,1 +1,1 @@
-<db>://<username>:<password>@<domain>:<port>/<table>
+<dms>://<username>:<password>@<domain>:<port>/<db>
