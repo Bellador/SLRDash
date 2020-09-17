@@ -14,4 +14,7 @@ Run RESTful API Server.
 
 
 if __name__ == '__main__':
-    app.run() #host='0.0.0.0', port=4000
+    app.debug = True
+    app.run() #host='0.0.0.0', port=5000
+    # if the app shall be visible in the local network use the following
+    # app.run(host='0.0.0.0', port=5000)

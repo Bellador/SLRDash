@@ -52,8 +52,8 @@ function loadArticle(data){
 
     // check the previous decision on the paper given the current reviewer
     let decision;
-    //console.log("reviewer:" + currentReviewer);
-    switch (currentReviewer) {
+    console.log("reviewer: " + currentReviewerId);
+    switch (currentReviewerId) {
         case '1':
             decision = data.decision_r_1
             $("#reviewerRemark").val(data.remark_r_1);
@@ -67,7 +67,7 @@ function loadArticle(data){
             $("#reviewerRemark").val(data.remark_r_3);
             break;
     }
-    //console.log("data decision:" + decision);
+    console.log("data decision: " + decision);
     switch (decision) {
         case '1':
             console.log('the decision is already set to 1')
@@ -144,9 +144,12 @@ function decision(decision) {
 }
 
 function setSettings() {
-    currentReviewer = $("#selectReviewer").val();
+    psw = $("#inputPassword").val()
+    console.log("psw: " + inputPassword)
+    currentReviewerId = $("#selectReviewer").val();
+    currentReviewerName = $(`#selectReviewer option[value="${currentReviewerId}"]`).text();
     // set text in html visible to user
-    $("#reviewer").text(currentReviewer);
+    $("#reviewer").text(currentReviewerName);
     //console.log("Current reviewer " + currentReviewer)
     // get article filter settings for session
     let articleFilterList = [];
@@ -157,7 +160,9 @@ function setSettings() {
             articleFilterList.push(articleFilter);
         }
     });
-    var payload = {"reviewer": currentReviewer,
+    var payload = {
+                    "password": psw,
+                    "reviewer": currentReviewerId,
                     "article_filter_list": articleFilterList}
     $.ajax({
         type: "POST",

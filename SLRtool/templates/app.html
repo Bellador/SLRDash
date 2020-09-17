@@ -29,7 +29,7 @@
     <script src="/static/js/core.js"></script>
     <script>
         var loadedData;
-        var currentReviewer;
+        var currentReviewerName;
         console.log("here")
         window.onload = function() {
              // show modal
@@ -52,11 +52,15 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
+                        <label for="inputPassword">Password</label>
+                        <input type="password" class="form-control" id="inputPassword" placeholder="Password">
+                    </div>
+                    <div class="form-group">
                         <label for="selectReviewer">Reviewer</label>
                         <select class="form-control" id="selectReviewer">
-                          <option>1</option>
-                          <option>2</option>
-                          <option>3</option>
+                          <option value="1">name_placeholder_1</option>
+                          <option value="2">name_placeholder_2</option>
+                          <option value="3">name_placeholder_3</option>
                         </select>
                     </div>
                     <!-- Search filter checkboxes -->

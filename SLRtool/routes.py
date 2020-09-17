@@ -1,7 +1,20 @@
-import simplejson as json
 from . import app, db
+from functools import wraps
 from .models import ScopusEntry
+from settings import LOGIN_PASSWORD
 from flask import render_template, request, jsonify, make_response, url_for, redirect, session
+
+def password_checked(a_func):
+    @wraps(a_func)
+    def inner():
+        if 'passwd_verified' in session.keys():
+            if session['passwd_verified'] == True:
+                return a_func()
+            else:
+                return ('not verified', 401)
+        else:
+            return ('not verified', 401)
+    return inner
 
 def get_article(eid=False):
     '''
@@ -47,7 +60,6 @@ def get_article(eid=False):
                 limit(1). \
                 all() # same as list(query)/list(article)
 
-
     else:
         article = db.session.query(ScopusEntry). \
             filter(ScopusEntry.eid == eid). \
@@ -73,7 +85,7 @@ def start():
     session_items = session.items()
     keys = session.keys()
     to_del = []
-    not_to_del = ['csrf_token', 'filters', 'reviewer']
+    not_to_del = ['csrf_token', 'filters', 'reviewer', 'passwd_verified']
     for key in keys:
         if key not in not_to_del:
             to_del.append(key)
@@ -83,6 +95,7 @@ def start():
     return ('', 204)
 
 @app.route('/history', methods=['POST'])
+@password_checked
 def old_article():
     data = request.json
     requested_eid = data['requested_eid']
@@ -94,6 +107,7 @@ def old_article():
     return resp
 
 @app.route('/next', methods=['GET'])
+@password_checked
 def next_article():
     data = get_article()
     if data is not None:
@@ -122,6 +136,7 @@ def next_article():
         return ('no data', 204)
 
 @app.route('/previous', methods=['GET'])
+@password_checked
 def previous_article():
     session_items = session.items()
     if 'previous_eids' in session.keys():
@@ -146,6 +161,7 @@ def previous_article():
         return ('', 204)
 
 @app.route('/decision', methods=["POST"])
+@password_checked
 def decision_made():
     '''
     This function will be implemented in the Flask SLRtoolGAE of the SLRtool WebApp which will:
@@ -181,10 +197,15 @@ def decision_made():
 
 @app.route('/settings', methods=["POST"])
 def set_settings():
+    session['passwd_verified'] = False
     settings = request.json
+    input_password = settings['password']
+    # check password
+    if input_password != LOGIN_PASSWORD:
+        return ('false password', 401)
+    session['passwd_verified'] = True
     session['reviewer'] = settings['reviewer']
     # create new decision column for this reviewer if not existant
-
     filters = settings['article_filter_list']
     try:
         filters[filters.index('notreviewed_checkbox')] = 'not reviewed'
